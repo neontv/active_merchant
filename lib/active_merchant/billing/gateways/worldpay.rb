@@ -163,6 +163,15 @@ module ActiveMerchant #:nodoc:
           xml.tag! 'payAsOrder', 'orderCode' => payment_method do
             add_amount(xml, amount, options)
           end
+        elsif payment_method == nil
+          xml.tag! 'paymentMethodMask' do
+            xml.tag! 'include', 'code' => 'ALL'
+          end
+          if options[:email]
+            xml.tag! 'shopper' do
+              xml.tag! 'shopperEmailAddress', options[:email]
+            end
+          end
         else
           xml.tag! 'paymentDetails' do
             xml.tag! CARD_CODES[card_brand(payment_method)] do
@@ -269,7 +278,7 @@ module ActiveMerchant #:nodoc:
       def localized_amount(money, currency)
         amount = amount(money)
         return amount unless CURRENCIES_WITHOUT_FRACTIONS.include?(currency.to_s)
-        
+
         amount.to_i / 100 * 100
       end
     end
